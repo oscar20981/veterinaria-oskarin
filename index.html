@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrador de citas - Ejemplo</title>
+  <!-- Bootstrap 5 CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome para iconos mejorados -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-light">
+
+  <div class="container py-5">
+    <!-- Header mejorado -->
+    <div class="header-section">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <h2><i class="fas fa-paw"></i> Veterinaria Oskarin</h2>
+        <button id="btnAgregar" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalCita">
+          <i class="fas fa-plus me-2"></i>AGREGAR CITA
+        </button>
+      </div>
+    </div>
+
+    <!-- Sección de filtros -->
+    <div class="filter-section">
+      <label for="filtroEstado"><i class="fas fa-filter me-2"></i>Filtrar por estado</label>
+      <select id="filtroEstado" class="form-select">
+        <option value="todas">📋 Todas las citas</option>
+        <option value="abierta">✅ Abierta</option>
+        <option value="terminada">✔️ Terminada</option>
+        <option value="anulada">❌ Anulada</option>
+      </select>
+    </div>
+
+    <!-- Separador animado -->
+    <div class="barra-verde" role="separator" aria-hidden="true"></div>
+
+    <!-- Grid de citas -->
+    <div id="listaCitas" class="d-flex flex-wrap gap-3">
+      <!-- tarjetas renderizadas aquí -->
+    </div>
+  </div>
+
+  <!-- Modal: Agregar / Editar Cita -->
+  <div class="modal fade" id="modalCita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form id="formCita" class="modal-content needs-validation" novalidate>
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="fas fa-stethoscope me-2"></i><span id="modalTitulo">Guardar nueva cita</span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="citaId">
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-paw me-2"></i>Nombre Mascota</label>
+            <input id="mascota" class="form-control" placeholder="Ej: Firulais" required>
+            <div class="invalid-feedback">Ingrese el nombre de la mascota.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-user me-2"></i>Propietario</label>
+            <input id="propietario" class="form-control" placeholder="Ej: Juan Pérez" required>
+            <div class="invalid-feedback">Ingrese el nombre del propietario.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-phone me-2"></i>Teléfono</label>
+            <input id="telefono" class="form-control" type="tel" inputmode="numeric" pattern="^\d{7,15}$" maxlength="15"
+              placeholder="Ej: 1234567890" title="Ingrese entre 7 y 15 dígitos" required>
+            <div class="invalid-feedback">Ingrese un teléfono válido (solo dígitos, 7-15 caracteres).</div>
+          </div>
+          <div class="row">
+            <div class="col-7 mb-3">
+              <label class="form-label"><i class="fas fa-calendar me-2"></i>Fecha de cita</label>
+              <input id="fecha" type="date" class="form-control" required>
+              <div id="fechaFeedback" class="invalid-feedback">La fecha debe ser posterior a hoy.</div>
+            </div>
+            <div class="col-5 mb-3">
+              <label class="form-label"><i class="fas fa-clock me-2"></i>Hora</label>
+              <input id="hora" type="time" class="form-control" required>
+              <div id="horaFeedback" class="invalid-feedback">La hora debe estar entre 08:00 y 20:00.</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-dna me-2"></i>Tipo de mascota</label>
+            <select id="tipo" class="form-select">
+              <option value="">Sin especificar</option>
+              <option>🐕 Perro</option>
+              <option>🐈 Gato</option>
+              <option>🐦 Ave</option>
+              <option>🐹 Hamster</option>
+              <option>🐰 Conejo</option>
+              <option>🐢 Tortuga</option>
+              <option>🦎 Lagarto</option>
+              <option>🐠 Pez</option>
+              <option>🦗 Insecto</option>
+              <option>🐴 Caballo</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-notes-medical me-2"></i>Síntomas</label>
+            <textarea id="sintomas" class="form-control" rows="3" placeholder="Describa los síntomas del paciente..."
+              required></textarea>
+            <div class="invalid-feedback">Describa los síntomas.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fas fa-status-circle me-2"></i>Estado</label>
+            <select id="estado" class="form-select" required>
+              <option value="abierta">✅ Abierta</option>
+              <option value="terminada">✔️ Terminada</option>
+              <option value="anulada">❌ Anulada</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CERRAR</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>GUARDAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal confirmación eliminación -->
+  <div class="modal fade" id="confirmEliminar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p><i class="fas fa-question-circle me-2"></i>¿Está seguro que desea eliminar esta cita?</p>
+          <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelDelete" type="button" class="btn btn-link" data-bs-dismiss="modal">CANCELAR</button>
+          <button id="btnConfirmDelete" type="button" class="btn btn-danger"><i
+              class="fas fa-trash me-2"></i>ELIMINAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 1: VARIABLES GLOBALES Y ESTRUCTURAS DE DATOS
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // 📋 MAPEO DE GIFS PARA TIPOS DE MASCOTAS
+    // ============================================
+    // Propósito: Almacena URLs de GIFs animados para cada tipo de mascota.
+    // Uso: Permite mostrar una imagen representativa según el tipo seleccionado en la cita.
+    // Estructura: Objeto clave-valor donde la clave es el emoji+nombre y el valor es la URL del GIF.
+    // Beneficio: Evita duplicación de URLs en el código y centraliza la gestión de recursos.
+    const gifMap = {
+      '🐕 Perro': 'https://i.gifer.com/Xqg8.gif',
+      '🐈 Gato': 'https://i.gifer.com/NFqM.gif',
+      '🐦 Ave': 'https://i.gifer.com/9MMi.gif',
+      '🐹 Hamster': 'https://i.gifer.com/1BL.gif',
+      '🐰 Conejo': 'https://i.gifer.com/4xjK.gif',
+      '🐢 Tortuga': 'https://i.gifer.com/Txk6.gif',
+      '🦎 Lagarto': 'https://i.gifer.com/1EG.gif',
+      '🐠 Pez': 'https://i.gifer.com/WXfH.gif',
+      '🦗 Insecto': 'https://i.gifer.com/4gpB.gif',
+      '🐴 Caballo': 'https://i.gifer.com/XyUU.gif'
+    };
+
+    // ============================================
+    // 📊 ARRAY DE CITAS INICIALES
+    // ============================================
+    // Propósito: Almacena todas las citas de pacientes veterinarios.
+    // Estructura: Array de objetos donde cada objeto representa una cita completa.
+    // Propiedades: id, mascota, propietario, telefono, fecha, hora, tipo, sintomas, estado.
+    // Persistencia: Actualmente se almacena en memoria (se pierde al recargar la página).
+    let citas = [
+      {
+        id: '1',
+        mascota: 'Firulais',
+        propietario: 'Juan García',
+        telefono: '3012345678',
+        fecha: '2026-02-15',
+        hora: '10:00',
+        tipo: '🐕 Perro',
+        sintomas: 'Tos y estornudos frecuentes',
+        estado: 'abierta'
+      },
+    ];
+
+    // ============================================
+    // 🆔 CONTADOR PARA IDs DE NUEVAS CITAS
+    // ============================================
+    // Propósito: Genera un ID único para cada nueva cita creada.
+    // Lógica: Inicia con el ID máximo existente + 1 para evitar duplicados.
+    // Incremento: Se aumenta automáticamente cada vez que se crea una nueva cita.
+    // Formato: Se convierte a string para mantener consistencia con los IDs existentes.
+    let proximoId = Math.max(...citas.map(c => parseInt(c.id)), 1) + 1;
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 2: REFERENCIAS A ELEMENTOS DEL DOM
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // 🎯 REFERENCIAS A ELEMENTOS HTML PRINCIPALES
+    // ============================================
+    // Propósito: Almacena referencias a elementos HTML para acceso rápido sin queries repetidas.
+    // Optimización: Reduce el costo computacional evitando búsquedas repetidas del mismo elemento.
+    // Actualización: Se realiza una única vez al cargar la página.
+    const listaCitas = document.getElementById('listaCitas');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const formCita = document.getElementById('formCita');
+    const modalCitaEl = document.getElementById('modalCita');
+    const modalCita = new bootstrap.Modal(modalCitaEl);
+    const confirmEliminarEl = document.getElementById('confirmEliminar');
+    const confirmEliminarModal = new bootstrap.Modal(confirmEliminarEl);
+    const btnAgregar = document.getElementById('btnAgregar');
+
+    // ============================================
+    // 🗑️ VARIABLE AUXILIAR PARA ELIMINACIÓN
+    // ============================================
+    // Propósito: Almacena el ID de la cita a eliminar durante el proceso de confirmación.
+    // Uso: Se establece cuando el usuario hace clic en "Eliminar" y se usa al confirmar.
+    // Seguridad: Evita eliminar la cita incorrecta si el usuario cancela y vuelve a intentar.
+    let idAEliminar = null;
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 3: FUNCIONES PRINCIPALES DE GESTIÓN
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // 🎨 FUNCIÓN PRINCIPAL: renderCitas()
+    // ============================================
+    // Propósito: Renderiza (dibuja) todas las tarjetas de citas en la página.
+    // Responsabilidades: Filtrado, creación HTML, adjunción de listeners.
+    // Llamadas: Se ejecuta al cargar la página y después de cualquier cambio en datos.
+    // Nota: Es la función "madre" que controla toda la interfaz visual.
+    function renderCitas() {
+      // ---- FUNCIÓN SECUNDARIA: Obtener filtro seleccionado ----
+      // Lee el valor del selector de filtro para determinar qué citas mostrar.
+      const filtro = filtroEstado.value;
+      
+      // ---- FUNCIÓN SECUNDARIA: Limpiar contenedor ----
+      // Borra todas las tarjetas anteriores para renderizar una lista fresca.
+      listaCitas.innerHTML = '';
+
+      // ---- FUNCIÓN SECUNDARIA: Filtrar citas por estado ----
+      // Filtra el array de citas según la opción seleccionada.
+      // Si es "todas", muestra todas las citas; si no, solo las del estado seleccionado.
+      const filtered = citas.filter(c => (filtro === 'todas' ? true : c.estado === filtro));
+
+      // ---- FUNCIÓN SECUNDARIA: Mostrar mensaje si no hay citas ----
+      // Si el filtro no devuelve resultados, muestra un mensaje de lista vacía.
+      if (filtered.length === 0) {
+        listaCitas.innerHTML = `
+        <div style="text-align: center; color: rgba(255,255,255,0.6); width: 100%; padding: 3rem;">
+          <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p style="font-size: 1.2rem;">No hay citas en este estado</p>
+        </div>
+      `;
+        return;
+      }
+
+      // ---- FUNCIÓN SECUNDARIA: Iterar sobre citas y crear tarjetas ----
+      // Para cada cita filtrada, genera un elemento HTML visual.
+      filtered.forEach((cita, index) => {
+        // ---- FUNCIÓN TERCIARIA: Crear contenedor de tarjeta ----
+        // Crea un div que actuará como contenedor de la tarjeta visual.
+        const card = document.createElement('div');
+        card.className = 'card card-cita shadow-sm';
+        card.style.animationDelay = `${index * 0.1}s`;
+
+        // ---- FUNCIÓN TERCIARIA: Obtener URL del GIF ----
+        // Busca el GIF correspondiente al tipo de mascota de esta cita.
+        const gifUrl = getGifUrl(cita.tipo);
+
+        // ---- FUNCIÓN TERCIARIA: Construir HTML de la tarjeta ----
+        // Crea el contenido HTML con todos los datos de la cita formateados.
+        // Incluye: ID, nombre mascota, propietario, teléfono, fecha, hora, tipo, síntomas.
+        card.innerHTML = `
+        <div class="card-body">
+          <div style="text-align: center; margin-bottom: 1rem;">
+            <img src="${gifUrl}" alt="${cita.tipo}" class="gif-mascota" onerror="this.src='https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif'">
+          </div>
+          <h6 class="card-subtitle"><i class="fas fa-hashtag"></i> Cita #${cita.id}</h6>
+          <h5 class="card-title">${escapeHtml(cita.mascota)}</h5>
+          <p class="mb-2"><i class="fas fa-user me-2" style="color: #f5576c;"></i><strong>Propietario:</strong> ${escapeHtml(cita.propietario)}</p>
+          <p class="mb-2"><i class="fas fa-phone me-2" style="color: #667eea;"></i><strong>Teléfono:</strong> ${escapeHtml(cita.telefono)}</p>
+          <p class="mb-2"><i class="fas fa-calendar me-2" style="color: #f093fb;"></i><strong>Fecha:</strong> ${formatFecha(cita.fecha)} <strong>Hora:</strong> ${cita.hora}</p>
+          <p class="mb-2"><i class="fas fa-dna me-2" style="color: #51cf66;"></i><strong>Tipo:</strong> ${escapeHtml(cita.tipo)}</p>
+          <p class="mb-3"><i class="fas fa-stethoscope me-2" style="color: #667eea;"></i><strong>Síntomas:</strong> ${escapeHtml(cita.sintomas)}</p>
+
+          <div class="mb-3">
+            <label class="form-label small" style="margin-bottom: 0.5rem; display: block;">Estado</label>
+            <select class="form-select form-select-sm estado-select" data-id="${cita.id}">
+              <option value="abierta" ${cita.estado === 'abierta' ? 'selected' : ''}>✅ Abierta</option>
+              <option value="terminada" ${cita.estado === 'terminada' ? 'selected' : ''}>✔️ Terminada</option>
+              <option value="anulada" ${cita.estado === 'anulada' ? 'selected' : ''}>❌ Anulada</option>
+            </select>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-editar" data-id="${cita.id}" title="Editar"><i class="fas fa-edit me-1"></i>Editar</button>
+            <button class="btn btn-sm btn-eliminar" data-id="${cita.id}" title="Eliminar"><i class="fas fa-trash me-1"></i>Eliminar</button>
+          </div>
+        </div>
+      `;
+        // ---- FUNCIÓN TERCIARIA: Agregar tarjeta al DOM ----
+        // Inserta la tarjeta creada en el contenedor de lista de citas.
+        listaCitas.appendChild(card);
+      });
+
+      // ============================================
+      // 🔄 FUNCIÓN SECUNDARIA: Adjuntar listeners a selectores de estado
+      // ============================================
+      // Propósito: Escucha cambios en los selectores de estado dentro de cada tarjeta.
+      // Comportamiento: Cuando el usuario cambia el estado, actualiza el array y re-renderiza.
+      // Nota: Se ejecuta después de crear todas las tarjetas.
+      document.querySelectorAll('.estado-select').forEach(s => {
+        s.addEventListener('change', (e) => {
+          // ---- FUNCIÓN TERCIARIA: Obtener ID del selector ----
+          // Extrae el ID de la cita del atributo data-id.
+          const id = e.target.dataset.id;
+          
+          // ---- FUNCIÓN TERCIARIA: Buscar cita en el array ----
+          // Localiza la cita modificada usando el ID.
+          const c = citas.find(x => x.id === id);
+
+          // ---- FUNCIÓN TERCIARIA: Actualizar estado y re-renderizar ----
+          // Si encuentra la cita, actualiza su estado y vuelve a dibujar.
+          if (c) { c.estado = e.target.value; renderCitas(); }
+        });
+      });
+
+      // ============================================
+      // ✏️ FUNCIÓN SECUNDARIA: Adjuntar listeners a botones de editar
+      // ============================================
+      // Propósito: Escucha clics en botones de editar dentro de cada tarjeta.
+      // Comportamiento: Abre el modal con los datos de la cita para edición.
+      // Nota: Solo adjunta listeners a botones creados en esta ejecución.
+      document.querySelectorAll('.btn-editar').forEach(b => {
+        b.addEventListener('click', () => abrirEditar(b.dataset.id));
+      });
+
+      // ============================================
+      // 🗑️ FUNCIÓN SECUNDARIA: Adjuntar listeners a botones de eliminar
+      // ============================================
+      // Propósito: Escucha clics en botones de eliminar dentro de cada tarjeta.
+      // Comportamiento: Muestra un modal de confirmación antes de eliminar.
+      // Seguridad: Requiere confirmación del usuario para evitar eliminaciones accidentales.
+      document.querySelectorAll('.btn-eliminar').forEach(b => {
+        b.addEventListener('click', () => confirmarEliminar(b.dataset.id));
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 4: FUNCIONES DE UTILIDAD Y TRANSFORMACIÓN DE DATOS
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // 🖼️ FUNCIÓN: obtenerUrlGif()
+    // ============================================
+    // Propósito: Retorna la URL del GIF correspondiente al tipo de mascota.
+    // Parámetros: tipo (string) - tipo de mascota seleccionado
+    // Retorna: URL del GIF o GIF por defecto si no existe el tipo
+    // Uso: Se invoca desde renderCitas() para cada cita.
+    function getGifUrl(tipo) {
+      return gifMap[tipo] || gifMap[''];
+    }
+
+    // ============================================
+    // 🛡️ FUNCIÓN: escaparHtml()
+    // ============================================
+    // Propósito: Escapa caracteres especiales HTML para prevenir inyección de código.
+    // Parámetros: text (string) - texto a escapar
+    // Retorna: texto con caracteres especiales escapados
+    // Seguridad: Previene ataques XSS (Cross-Site Scripting) al escapar: <, >, &, ", '
+    // Uso: Se aplica a todos los campos de texto que se muestran en la página.
+    function escapeHtml(text) {
+      // ---- FUNCIÓN TERCIARIA: Verificar si el texto existe ----
+      // Retorna string vacío si el texto es null, undefined o falsy.
+      if (!text) return '';
+      
+      // ---- FUNCIÓN TERCIARIA: Reemplazar caracteres especiales ----
+      // Reemplaza cada carácter especial por su entidad HTML equivalente.
+      return text
+        .replace(/&/g, '&amp;')    // & → &amp;
+        .replace(/</g, '&lt;')     // < → &lt;
+        .replace(/>/g, '&gt;')     // > → &gt;
+        .replace(/"/g, '&quot;')   // " → &quot;
+        .replace(/'/g, '&#039;');  // ' → &#039;
+    }
+
+    // ============================================
+    // 📅 FUNCIÓN: formatearFecha()
+    // ============================================
+    // Propósito: Convierte formato de fecha ISO (YYYY-MM-DD) a formato local (DD/MM/YYYY).
+    // Parámetros: dateStr (string) - fecha en formato ISO (ej: "2026-02-15")
+    // Retorna: fecha formateada como DD/MM/YYYY (ej: "15/2/2026")
+    // Beneficio: Mejora la legibilidad para usuarios hispanohablantes.
+    function formatFecha(dateStr) {
+      // ---- FUNCIÓN TERCIARIA: Validar que la fecha exista ----
+      // Retorna string vacío si no hay fecha proporcionada.
+      if (!dateStr) return '';
+      
+      // ---- FUNCIÓN TERCIARIA: Dividir fecha en componentes ----
+      // Separa la fecha ISO en partes: [año, mes, día]
+      const parts = dateStr.split('-');
+      
+      // ---- FUNCIÓN TERCIARIA: Extraer y convertir componentes ----
+      // Convierte cada parte a número entero (base 10).
+      const y = parseInt(parts[0], 10);  // Año
+      const m = parseInt(parts[1], 10);  // Mes
+      const d = parseInt(parts[2], 10);  // Día
+      
+      // ---- FUNCIÓN TERCIARIA: Retornar fecha formateada ----
+      // Reorganiza los componentes en formato DD/MM/YYYY.
+      return `${d}/${m}/${y}`;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 5: FUNCIONES DE FORMULARIO Y EDICIÓN
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // ✏️ FUNCIÓN: abrirEditar()
+    // ============================================
+    // Propósito: Carga los datos de una cita existente en el formulario modal para edición.
+    // Parámetros: id (string) - ID de la cita a editar
+    // Comportamiento: Busca la cita, rellena todos los campos del formulario y abre el modal.
+    // Proceso: 1. Buscar cita, 2. Limpiar validaciones, 3. Rellenar campos, 4. Mostrar modal.
+    function abrirEditar(id) {
+      // ---- FUNCIÓN SECUNDARIA: Buscar cita por ID ----
+      // Recorre el array de citas hasta encontrar la que coincida con el ID proporcionado.
+      const c = citas.find(x => x.id === id);
+      
+      // ---- FUNCIÓN SECUNDARIA: Validar existencia de cita ----
+      // Si no encuentra la cita, detiene la ejecución.
+      if (!c) return;
+
+      // ---- FUNCIÓN SECUNDARIA: Limpiar validaciones ANTES de rellenar ----
+      // Remueve la clase que muestra los estados de validación previos.
+      formCita.classList.remove('was-validated');
+      removeValidationStates();
+
+      // ---- FUNCIÓN SECUNDARIA: Rellenar campos del formulario ----
+      // Asigna los valores actuales de la cita a cada campo del formulario modal.
+      document.getElementById('citaId').value = c.id;
+      document.getElementById('mascota').value = c.mascota;
+      document.getElementById('propietario').value = c.propietario;
+      document.getElementById('telefono').value = c.telefono;
+      document.getElementById('fecha').value = c.fecha;
+      document.getElementById('hora').value = c.hora;
+      document.getElementById('tipo').value = c.tipo || '';
+      document.getElementById('sintomas').value = c.sintomas;
+      document.getElementById('estado').value = c.estado;
+
+      // ---- FUNCIÓN TERCIARIA: Cambiar título del modal ----
+      // Actualiza el título para indicar que se está editando una cita existente.
+      document.getElementById('modalTitulo').textContent = `Editar cita de ${escapeHtml(c.mascota)}`;
+
+      // ---- FUNCIÓN TERCIARIA: Establecer fecha mínima ----
+      // Configura la restricción de fechas para edición.
+      setMinFechaManana();
+
+      // ---- FUNCIÓN TERCIARIA: Mostrar modal ----
+      // Abre el modal Bootstrap para que el usuario pueda editar los datos.
+      modalCita.show();
+    }
+
+    // ============================================
+    // 🧹 FUNCIÓN: removerEstadosValidacion()
+    // ============================================
+    // Propósito: Limpia las clases de validación visual (is-valid, is-invalid) de los campos.
+    // Comportamiento: Elimina clases de Bootstrap que muestran el estado de validación.
+    // Campos afectados: mascota, propietario, teléfono, fecha, hora, síntomas.
+    // Uso: Se llama al abrir el formulario y al cerrar para limpiar estados previos.
+    function removeValidationStates() {
+      // ---- FUNCIÓN TERCIARIA: Recorrer array de IDs de campos ----
+      // Itera sobre una lista predefinida de IDs que necesitan limpieza.
+      ['mascota', 'propietario', 'telefono', 'fecha', 'hora', 'sintomas'].forEach(id => {
+        // ---- FUNCIÓN CUATERNARIA: Obtener elemento del DOM ----
+        // Busca el elemento por su ID.
+        const el = document.getElementById(id);
+        
+        // ---- FUNCIÓN CUATERNARIA: Remover clases de validación ----
+        // Si el elemento existe, elimina las clases is-valid e is-invalid.
+        el && el.classList.remove('is-valid', 'is-invalid');
+      });
+    }
+
+    // ============================================
+    // 📆 FUNCIÓN: establecerFechaMinima()
+    // ============================================
+    // Propósito: Establece la fecha mínima permitida en el campo de fecha como mañana.
+    // Comportamiento: Calcula mañana's date y la asigna como atributo 'min' del input de fecha.
+    // Restricción: Impide que el usuario seleccione fechas en el pasado o hoy.
+    // Beneficio: Asegura que las citas sean siempre para fechas futuras.
+    function setMinFechaManana() {
+      // ---- FUNCIÓN SECUNDARIA: Obtener fecha de hoy ----
+      // Crea un objeto Date con la fecha y hora actual.
+      const hoy = new Date();
+
+      // ---- FUNCIÓN SECUNDARIA: Calcular mañana ----
+      // Suma un día a la fecha actual para obtener mañana.
+      const manana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1);
+
+      // ---- FUNCIÓN SECUNDARIA: Formatear fecha como YYYY-MM-DD ----
+      // Convierte la fecha calculada al formato que HTML5 date input espera.
+      const yyyy = manana.getFullYear();
+      const mm = String(manana.getMonth() + 1).padStart(2, '0');  // Asegura 2 dígitos
+      const dd = String(manana.getDate()).padStart(2, '0');       // Asegura 2 dígitos
+      const minStr = `${yyyy}-${mm}-${dd}`;
+
+      // ---- FUNCIÓN SECUNDARIA: Asignar atributo mínimo ----
+      // Establece el atributo 'min' en el input de fecha.
+      document.getElementById('fecha').setAttribute('min', minStr);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 6: FUNCIONES DE ELIMINACIÓN Y CONFIRMACIÓN
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // ⚠️ FUNCIÓN: confirmarEliminar()
+    // ============================================
+    // Propósito: Muestra un modal de confirmación antes de eliminar una cita.
+    // Parámetros: id (string) - ID de la cita a eliminar
+    // Comportamiento: Almacena el ID y abre el modal de confirmación.
+    // Seguridad: Requiere confirmación del usuario antes de eliminar permanentemente.
+    function confirmarEliminar(id) {
+      // ---- FUNCIÓN SECUNDARIA: Almacenar ID a eliminar ----
+      // Guarda el ID en una variable global para usarlo después cuando se confirme.
+      idAEliminar = id;
+
+      // ---- FUNCIÓN SECUNDARIA: Mostrar modal de confirmación ----
+      // Abre el modal Bootstrap que pide confirmación al usuario.
+      confirmEliminarModal.show();
+    }
+
+    // ============================================
+    // 🗑️ FUNCIÓN: Eliminar cita confirmada
+    // ============================================
+    // Propósito: Elimina la cita del array cuando se confirma la eliminación.
+    // Comportamiento: Filtra la cita del array, cierra el modal y re-renderiza la lista.
+    // Activación: Se ejecuta cuando el usuario hace clic en el botón "ELIMINAR" del modal.
+    // Nota: idAEliminar debe estar establecido antes de ejecutarse.
+    document.getElementById('btnConfirmDelete').addEventListener('click', () => {
+      // ---- FUNCIÓN SECUNDARIA: Validar que haya ID a eliminar ----
+      // Verifica que exista un ID antes de intentar eliminarlo.
+      if (!idAEliminar) return;
+
+      // ---- FUNCIÓN SECUNDARIA: Filtrar cita del array ----
+      // Crea un nuevo array sin la cita que tiene el ID a eliminar.
+      // Mantiene todas las citas que NO coinciden con el ID.
+      citas = citas.filter(c => c.id !== idAEliminar);
+
+      // ---- FUNCIÓN SECUNDARIA: Limpiar variable temporal ----
+      // Resetea la variable que almacenaba el ID para evitar eliminaciones accidentales.
+      idAEliminar = null;
+
+      // ---- FUNCIÓN SECUNDARIA: Cerrar modal ----
+      // Oculta el modal de confirmación.
+      confirmEliminarModal.hide();
+
+      // ---- FUNCIÓN SECUNDARIA: Re-renderizar lista ----
+      // Vuelve a dibujar todas las citas para reflejar la eliminación.
+      renderCitas();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 7: FUNCIONES DE VALIDACIÓN DEL FORMULARIO
+    // ════════════════════════════════════════════════════════��══════════════════════════
+
+    // ============================================
+    // ✅ FUNCIÓN PRINCIPAL: Envío del Formulario
+    // ============================================
+    // Propósito: Valida todos los campos del formulario y guarda o actualiza la cita.
+    // Validaciones: Nombre, propietario, teléfono, fecha, hora, síntomas y estado.
+    // Comportamiento: Si es válido, guarda/actualiza la cita, cierra el modal y re-renderiza.
+    // Pasos: HTML5 → Teléfono → Fecha → Hora → Guardar → Limpiar → Cerrar
+    formCita.addEventListener('submit', function (e) {
+      // ---- FUNCIÓN SECUNDARIA: Prevenir envío por defecto ----
+      // Previene que el navegador envíe el formulario de manera tradicional.
+      e.preventDefault();
+      e.stopPropagation();
+
+      // ---- FUNCIÓN SECUNDARIA: Validación básica de HTML5 ----
+      // Verifica que todos los campos requeridos tengan valores.
+      if (!formCita.checkValidity()) {
+        formCita.classList.add('was-validated');
+        return;
+      }
+
+      // ============================================
+      // 📱 FUNCIÓN TERCIARIA: Validar Teléfono
+      // ============================================
+      // Propósito: Valida que el teléfono tenga entre 7 y 15 dígitos.
+      // Lógica: Extrae solo dígitos y verifica la cantidad.
+      // Acción: Muestra error visual si es inválido, o lo formatea si es válido.
+      const telInput = document.getElementById('telefono');
+      const telRaw = telInput.value || '';
+      
+      // ---- FUNCIÓN CUATERNARIA: Extraer solo dígitos ----
+      // Elimina cualquier carácter que no sea número.
+      const telDigits = telRaw.replace(/\D/g, '');
+      
+      // ---- FUNCIÓN CUATERNARIA: Validar rango de dígitos ----
+      // Comprueba que haya entre 7 y 15 dígitos.
+      if (telDigits.length < 7 || telDigits.length > 15) {
+        telInput.classList.add('is-invalid');
+        telInput.classList.remove('is-valid');
+        telInput.focus();
+        return;
+      } else {
+        // ---- FUNCIÓN CUATERNARIA: Formatear y aceptar teléfono ----
+        // Si es válido, lo guarda solo con dígitos.
+        telInput.classList.remove('is-invalid');
+        telInput.classList.add('is-valid');
+        telInput.value = telDigits;
+      }
+
+      // ============================================
+      // 📅 FUNCIÓN TERCIARIA: Validar Fecha
+      // ============================================
+      // Propósito: Valida que la fecha sea posterior a hoy (futuro).
+      // Lógica: Compara la fecha ingresada con la fecha actual.
+      // Acción: Muestra error si es en el pasado o igual a hoy.
+      const fechaVal = document.getElementById('fecha').value;
+      
+      // ---- FUNCIÓN CUATERNARIA: Verificar que haya fecha ----
+      // Comprueba que el campo no esté vacío.
+      if (!fechaVal) {
+        document.getElementById('fecha').classList.add('is-invalid');
+        return;
+      }
+
+      // ---- FUNCIÓN CUATERNARIA: Parsear fecha ISO ----
+      // Divide la fecha en componentes y crea un objeto Date.
+      const parts = fechaVal.split('-');
+      const fechaObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      const ahora = new Date();
+      const hoySolo = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+
+      // ---- FUNCIÓN CUATERNARIA: Comparar fechas ----
+      // Comprueba si la fecha ingresada es mayor a hoy.
+      if (!(fechaObj > hoySolo)) {
+        document.getElementById('fecha').classList.add('is-invalid');
+        document.getElementById('fecha').classList.remove('is-valid');
+        document.getElementById('fecha').focus();
+        return;
+      } else {
+        document.getElementById('fecha').classList.remove('is-invalid');
+        document.getElementById('fecha').classList.add('is-valid');
+      }
+
+      // ============================================
+      // 🕐 FUNCIÓN TERCIARIA: Validar Hora
+      // ============================================
+      // Propósito: Valida que la hora esté dentro del horario permitido (08:00 - 20:00).
+      // Lógica: Compara la hora en formato de texto (comparación string funciona correctamente).
+      // Acción: Muestra error si está fuera del horario permitido.
+      const horaVal = document.getElementById('hora').value;
+      
+      // ---- FUNCIÓN CUATERNARIA: Comparar horarios ----
+      // Verifica que la hora esté entre 08:00 y 20:00 (inclusive).
+      if (!(horaVal >= '08:00' && horaVal <= '20:00')) {
+        document.getElementById('hora').classList.add('is-invalid');
+        document.getElementById('hora').classList.remove('is-valid');
+        document.getElementById('hora').focus();
+        return;
+      } else {
+        document.getElementById('hora').classList.remove('is-invalid');
+        document.getElementById('hora').classList.add('is-valid');
+      }
+
+      // ============================================
+      // 💾 FUNCIÓN SECUNDARIA: Crear o Actualizar Cita
+      // ============================================
+      // Propósito: Construye el objeto de cita y lo guarda o actualiza en el array.
+      // Lógica: Si hay ID, actualiza; si no, crea una nueva cita.
+      const id = document.getElementById('citaId').value;
+      
+      // ---- FUNCIÓN TERCIARIA: Construir objeto de cita ----
+      // Crea un objeto con todos los datos validados de la cita.
+      const nueva = {
+        id: id || String(proximoId++),  // Si no hay ID, genera uno nuevo
+        mascota: document.getElementById('mascota').value.trim(),
+        propietario: document.getElementById('propietario').value.trim(),
+        telefono: document.getElementById('telefono').value.trim(),
+        fecha: fechaVal,
+        hora: horaVal,
+        tipo: document.getElementById('tipo').value,
+        sintomas: document.getElementById('sintomas').value.trim(),
+        estado: document.getElementById('estado').value
+      };
+
+      // ---- FUNCIÓN TERCIARIA: Actualizar cita existente o crear nueva ----
+      // Si el ID existe, actualiza la cita; si no, agrega una nueva al array.
+      if (id) {
+        // ---- FUNCIÓN CUATERNARIA: Buscar índice de cita ----
+        // Localiza la posición de la cita a actualizar en el array.
+        const idx = citas.findIndex(c => c.id === id);
+        
+        // ---- FUNCIÓN CUATERNARIA: Reemplazar datos antiguos ----
+        // Si encuentra la cita, reemplaza sus datos con los nuevos.
+        if (idx >= 0) citas[idx] = nueva;
+      } else {
+        // ---- FUNCIÓN CUATERNARIA: Agregar nueva cita al array ----
+        // Si es una cita nueva, la agrega al final del array.
+        citas.push(nueva);
+      }
+
+      // ---- FUNCIÓN TERCIARIA: Limpiar formulario ----
+      // Resetea todos los campos después de guardar.
+      formCita.reset();
+      formCita.classList.remove('was-validated');
+      document.getElementById('citaId').value = '';
+      document.getElementById('modalTitulo').textContent = 'Guardar nueva cita';
+      removeValidationStates();
+
+      // ---- FUNCIÓN TERCIARIA: Cerrar modal ----
+      // Oculta el modal después de guardar.
+      modalCita.hide();
+
+      // ---- FUNCIÓN TERCIARIA: Re-renderizar lista ----
+      // Vuelve a dibujar todas las citas para mostrar los cambios.
+      renderCitas();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 8: EVENT LISTENERS PRINCIPALES
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // ➕ EVENT LISTENER: Botón Agregar Nueva Cita
+    // ============================================
+    // Propósito: Limpia el formulario modal para crear una nueva cita.
+    // Comportamiento: Resetea todos los campos, elimina validaciones previas y establece fecha mínima.
+    // Disparo: Cuando el usuario hace clic en "AGREGAR CITA".
+    // Nota: Se ejecuta ANTES de que se abra el modal (data-bs-toggle maneja eso).
+    btnAgregar.addEventListener('click', () => {
+      // ---- FUNCIÓN SECUNDARIA: Limpiar clases de validación ----
+      // Remueve la clase que muestra los estados de validación.
+      formCita.classList.remove('was-validated');
+
+      // ---- FUNCIÓN SECUNDARIA: Resetear formulario ----
+      // Limpia todos los campos del formulario a sus valores iniciales.
+      formCita.reset();
+
+      // ---- FUNCIÓN SECUNDARIA: Limpiar ID de cita ----
+      // Asegura que no haya ID guardado (indica que es una cita nueva, no edición).
+      document.getElementById('citaId').value = '';
+      
+      // ---- FUNCIÓN SECUNDARIA: Actualizar título del modal ----
+      // Cambia el título para indicar que es una cita nueva.
+      document.getElementById('modalTitulo').textContent = 'Guardar nueva cita';
+
+      // ---- FUNCIÓN SECUNDARIA: Limpiar validaciones visuales ----
+      // Elimina las clases de validación (is-valid, is-invalid).
+      removeValidationStates();
+
+      // ---- FUNCIÓN SECUNDARIA: Establecer fecha mínima ----
+      // Configura que no se pueda seleccionar fechas pasadas.
+      setMinFechaManana();
+    });
+
+    // ============================================
+    // 🪟 EVENT LISTENER: Apertura del Modal de Cita
+    // ============================================
+    // Propósito: Establece la fecha mínima permitida cuando se abre el modal de cita.
+    // Disparo: Cuando Bootstrap abre el modal #modalCita.
+    // Nota: Se usa el evento show.bs.modal de Bootstrap.
+    // Beneficio: Asegura que siempre se calcule mañana como fecha mínima al abrir.
+    modalCitaEl.addEventListener('show.bs.modal', () => {
+      // ---- FUNCIÓN SECUNDARIA: Configurar restricción de fecha ----
+      // Asegura que siempre se calcule mañana como fecha mínima.
+      setMinFechaManana();
+    });
+
+    // ============================================
+    // 🔍 EVENT LISTENER: Cambio de Filtro de Estado
+    // ============================================
+    // Propósito: Re-renderiza las citas cada vez que cambia el filtro de estado.
+    // Disparo: Cuando el usuario selecciona una opción diferente en el dropdown de filtro.
+    // Efecto: Muestra/oculta citas según su estado seleccionado.
+    // Uso: Permite al usuario ver solo las citas que le interesan.
+    filtroEstado.addEventListener('change', renderCitas);
+
+    // ═══════════════════════════════════════════════════════════════════════════════════
+    // SECCIÓN 9: INICIALIZACIÓN DE LA APLICACIÓN
+    // ═══════════════════════════════════════════════════════════════════════════════════
+
+    // ============================================
+    // 🚀 RENDERIZADO INICIAL
+    // ============================================
+    // Propósito: Dibuja las citas en la página cuando se carga el documento.
+    // Ejecución: Se ejecuta una única vez al cargar la página.
+    // Efecto: Muestra todas las citas disponibles en el array inicial.
+    // Nota: Esta es la última línea del script, se ejecuta después de definir todo.
+    renderCitas();
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fondo animado con patrón */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(107, 214, 214, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header mejorado */
+    .header-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2.5rem;
+      border-radius: 20px;
+      margin-bottom: 3rem;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header-section h2 {
+      color: white;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .header-section h2 i {
+      font-size: 2.8rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    /* Botón Agregar mejorado */
+    #btnAgregar {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      position: absolute;
+      top: 50%;
+      right: 2.5rem;
+      transform: translateY(-50%);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    #btnAgregar:hover {
+      transform: translateY(-50%) scale(1.05);
+      box-shadow: 0 6px 25px rgba(245, 87, 108, 0.6);
+      color: white;
+    }
+
+    #btnAgregar:active {
+      transform: translateY(-50%) scale(0.98);
+    }
+
+    /* Sección de filtros mejorada */
+    .filter-section {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .filter-section label {
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    #filtroEstado {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      color: white;
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      max-width: 300px;
+    }
+
+    #filtroEstado:hover {
+      border-color: rgba(102, 126, 234, 0.8);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #filtroEstado:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #667eea;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+      color: white;
+    }
+
+    #filtroEstado option {
+      background: #302b63;
+      color: white;
+    }
+
+    /* Separador mejorado */
+    .barra-verde {
+      height: 4px;
+      background: linear-gradient(90deg, #f093fb 0%, #f5576c 50%, #667eea 100%);
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    /* Grid de tarjetas */
+    #listaCitas {
+      gap: 2rem !important;
+      animation: fadeIn 0.6s ease-out 0.4s both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Tarjetas mejoradas */
+    .card-cita {
+      max-width: 360px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      animation: cardSlide 0.6s ease-out both;
+    }
+
+    @keyframes cardSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px) rotateZ(-1deg);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateZ(0deg);
+      }
+    }
+
+    .card-cita::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .card-cita:hover::before {
+      left: 100%;
+    }
+
+    .card-cita:hover {
+      transform: translateY(-15px) scale(1.03);
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+      color: white;
+    }
+
+    .card-subtitle {
+      color: rgba(255, 255, 255, 0.6) !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      color: #f093fb;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .card-body p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-body strong {
+      color: #f5576c;
+      font-weight: 600;
+    }
+
+    /* Selector de estado mejorado */
+    .estado-select {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border: 1.5px solid rgba(102, 126, 234, 0.4) !important;
+      color: white !important;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .estado-select:hover {
+      border-color: rgba(102, 126, 234, 0.7) !important;
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .estado-select:focus {
+      border-color: #667eea !important;
+      background: rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .estado-select option {
+      background: #302b63;
+      color: white;
+    }
+
+    /* Botones de acción mejorados */
+    .btn-editar,
+    .btn-eliminar {
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 1.1rem;
+      flex: 1;
+    }
+
+    .btn-editar {
+      background: rgba(102, 126, 234, 0.3);
+      border: 2px solid #667eea;
+      color: #667eea;
+    }
+
+    .btn-editar:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-eliminar {
+      background: rgba(245, 87, 108, 0.3);
+      border: 2px solid #f5576c;
+      color: #f5576c;
+    }
+
+    .btn-eliminar:hover {
+      background: #f5576c;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+    }
+
+    /* Modales mejorados */
+    .modal-content {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 15px;
+      color: white;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px 15px 0 0;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .form-label {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      margin-bottom: 0.7rem;
+      font-size: 0.95rem;
+    }
+
+    .form-control,
+    .form-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(102, 126, 234, 0.4);
+      color: white;
+      border-radius: 8px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #667eea;
+      color: white;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-select option {
+      background: #302b63;
+      color: white;
+    }
+
+    .invalid-feedback {
+      color: #ff6b6b;
+      font-weight: 500;
+      display: block;
+      margin-top: 0.5rem;
+    }
+
+    .is-invalid {
+      border-color: #ff6b6b !important;
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.3) !important;
+    }
+
+    .is-valid {
+      border-color: #51cf66 !important;
+      box-shadow: 0 0 10px rgba(81, 207, 102, 0.3) !important;
+    }
+
+    /* Botones del modal */
+    .modal-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(245, 87, 108, 0.5);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+      border: none;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(255, 107, 107, 0.5);
+      color: white;
+    }
+
+    /* Modal de confirmación */
+    .modal-content {
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Estilos para las imágenes GIF */
+    .gif-mascota {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .card-cita:hover .gif-mascota {
+      border-color: rgba(102, 126, 234, 0.8);
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-section {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .header-section h2 {
+        font-size: 1.8rem;
+        gap: 10px;
+      }
+
+      .header-section h2 i {
+        font-size: 2rem;
+      }
+
+      #btnAgregar {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 1rem;
+      }
+
+      #btnAgregar:hover {
+        transform: scale(1.05);
+      }
+
+      .card-cita {
+        max-width: 100%;
+      }
+
+      #listaCitas {
+        flex-direction: column !important;
+      }
+    }
+
+    /* Efecto de carga */
+    .card-cita {
+      animation-delay: 0.1s;
+    }
+
+    .card-cita:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .card-cita:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .card-cita:nth-child(n+4) {
+      animation-delay: 0.25s;
+    }
+
+    .btn-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-link:hover {
+      color: white;
+    }
+  </style>
+
+</body>
+
+</html>
